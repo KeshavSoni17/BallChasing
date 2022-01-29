@@ -38,4 +38,4 @@ def getzed():
                 continue
             else:
                 return i
-    raise LookupError("Cannot get index of camera.")
+                raise LookupError("Cannot get index of camera.")
