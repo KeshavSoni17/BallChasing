@@ -22,6 +22,7 @@ timer = time.time()
 track = tracking(hsv_values, parameter_values)
 draw = drawer()
 def code():
+    global timer
     frame_length = 5
     depths = [0]*frame_length
     angles = [0]*frame_length
@@ -64,8 +65,8 @@ def code():
             if len(exes) == 1:
                 continue
             else:
-                velx = abs(true_x - exes[1])/changes
-                vely = abs(true_y - exes[1])/changes
+                velx = abs(true_x - exes[1])/change
+                vely = abs(true_y - exes[1])/change
 
             if len(depths) == frame_length or velx > 60 or vely > 60:
                 depths.pop(0)
@@ -140,6 +141,3 @@ def video_feed():
 
 if __name__ == '__main__':
    app.run('0.0.0.0', debug = True, port = 5802)
-
-
-
