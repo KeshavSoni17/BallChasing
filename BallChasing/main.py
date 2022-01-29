@@ -8,6 +8,8 @@ from functions import *
 import keyboard
 import math
 import cv2
+import time
+
 
 app = Flask(__name__)
 
@@ -15,6 +17,7 @@ camera = VideoStream(getzed()).start()
 
 hsv_values = [6, 244, 147, 19, 255, 255]
 parameter_values = [0, 0, 0]
+timer = time.time()
 
 track = tracking(hsv_values, parameter_values)
 draw = drawer()
@@ -22,6 +25,8 @@ def code():
     frame_length = 5
     depths = [0]*frame_length
     angles = [0]*frame_length
+    exes = [0]*frame_length
+    whys = [0]*frame_length
 
     depth = 0
     angle = 0
@@ -30,6 +35,7 @@ def code():
     parameter_index = 0
 
     while True:
+        
         image = camera.read()
 
         track.update(hsv_values, parameter_values)
@@ -48,13 +54,24 @@ def code():
 
             depths.append(depth)
             angles.append(angle)
-
-            if len(depths) == frame_length:
-                depths.pop(0)
-                angles.pop(0)
-
+            
             true_x = depth*math.sin(angle*math.pi/180)
             true_y = depth*math.cos(angle*math.pi/180)
+            
+            change = time.time() - timer
+            timer = time.time()
+            
+            if len(exes) == 1:
+                continue
+            else:
+                velx = abs(true_x - exes[1])/changes
+                vely = abs(true_y - exes[1])/changes
+
+            if len(depths) == frame_length or velx > 60 or vely > 60:
+                depths.pop(0)
+                angles.pop(0)
+                exes.pop(0)
+                whys.pop(0)
 
             result = cv2.bitwise_and(imageR, imageR, mask=imageRT)
             result = draw.circle(result, posR, 5)
@@ -72,6 +89,8 @@ def code():
         if keyboard.is_pressed("enter"): 
             print("Depth (inches): " + str(depth))
             print("Angle (degrees): " + str(angle))
+            print("Velocity (x): " + str(velx))
+            print("Velocity (y): " + str(vely))
             print(hsv_values)
             print(parameter_values)
         elif keyboard.is_pressed("1"): hsv_index = 0
